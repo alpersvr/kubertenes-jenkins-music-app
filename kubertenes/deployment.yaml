@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-app-deployment # Deployment adınız
+  name: music-app-deployment # Deployment adınız
 spec:
   replicas: 1 # Başlangıç için 1 kopya (daha sonra 2'ye çıkaracağız) [cite: 14]
   selector:
@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: simple-app-container
-        image: alpersever/IMAGE_ADINIZ:TAG # Docker Hub'a push edeceğiniz imajın adı
+        image: alpersever/kubertenes-jenkins-music-app:latest # Docker Hub'a push edeceğiniz imajın adı
         ports:
         - containerPort: 8081 # Spring Boot uygulamasının çalıştığı port (application.properties dosyasında server.port ile değiştirebilirsiniz)
