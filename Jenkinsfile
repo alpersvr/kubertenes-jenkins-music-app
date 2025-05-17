@@ -52,24 +52,24 @@ pipeline {
 
     
         // STAGE 4 - Login to Docker Hub (GÜNCELLENDİ)
-        stage('Login to Docker Hub: Docker Huba Giriş Yap') {
-            steps {
-                script {
-                    // 'MyDocker' Jenkins -> Tools altında tanımladığınız Docker aracının adı olmalı.
-                    // Bu, /usr/local/bin gibi bir yol vermelidir.
-                    def dockerExecutable = "${tool('MyDocker')}/docker" 
-                    
-                    echo "Docker Executable Path: ${dockerExecutable}"
-                    echo "Attempting login for user: ${env.DOCKERHUB_CREDENTIALS_ID_USR}"
+       stage('Login to Docker Hub: Docker Huba Giriş Yap') {
+    steps {
+        script {
+            def dockerExecutable = "${tool('MyDocker')}/docker"
 
-                    // Jenkins'teki "Username with password" tipindeki credentials ID'niz
-                    // DOCKERHUB_CREDENTIALS_ID olmalı. Jenkins bu ID için _USR ve _PSW son ekleriyle
-                    // ortam değişkenleri oluşturur.
-                    sh "'${dockerExecutable}' login -u '${env.DOCKERHUB_CREDENTIALS_ID_USR}' -p '${env.DOCKERHUB_CREDENTIALS_ID_PSW}' https://registry.hub.docker.com"
-                    echo "Docker Hub'a 'sh' komutu ile giriş denemesi tamamlandı."
-                }
+            echo "Docker Executable Path: ${dockerExecutable}"
+
+            // GÜNCELLENMİŞ KISIM
+            withCredentials([usernamePassword(credentialsId: "${env.DOCKERHUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                sh """
+                    echo "$DOCKER_PASSWORD" | '${dockerExecutable}' login -u "$DOCKER_USERNAME" --password-stdin https://registry.hub.docker.com
+                """
+                echo "Docker Hub'a giriş başarılı."
             }
         }
+    }
+}
+
 
         // STAGE 5 - Push Docker Image (GÜNCELLENDİ)
         stage('Push Docker Image: İmajı Docker Huba Yükle') {
