@@ -2,7 +2,7 @@ pipeline {
     agent any // Jenkins'in bu pipeline'ı herhangi bir uygun agent üzerinde çalıştırmasını sağlar
     tools {
         // Manage Jenkins -> Tools altında Docker için verdiğiniz ismi buraya yazın
-        docker 'MyDocker' // Örneğin, 'MyDocker' olarak adlandırdıysanız
+        dockerTool 'MyDocker' // Örneğin, 'MyDocker' olarak adlandırdıysanız
     }
     environment {
         // Jenkins'te tanımladığınız Docker Hub credentials'ın ID'si
