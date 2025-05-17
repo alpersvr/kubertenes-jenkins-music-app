@@ -31,13 +31,21 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image: Docker İmajı Oluştur') { // Aşama 3: Docker imajı oluştur [cite: 10]
+      stage('Build Docker Image: Docker İmajı Oluştur') { // Aşama 3: Docker imajı oluştur [cite: 10]
             steps {
                 script {
-                    // Dockerfile dosyanızın projenin kök dizininde olduğunu varsayıyoruz
-                    // BUILD_NUMBER Jenkins tarafından sağlanan bir ortam değişkenidir ve imajı etiketlemek için kullanılır
-                    def customImage = docker.build("${env.DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}", ".")
-                    env.IMAGE_TAG = env.BUILD_NUMBER // Tag'i daha sonra kullanmak üzere sakla
+                    // 'MyDocker', Manage Jenkins -> Tools altında Docker için verdiğiniz isim olmalı.
+                    def dockerInstallationPath = tool('MyDocker') 
+
+                    // Docker aracının yolunu mevcut PATH'in başına ekleyerek yeni bir PATH oluşturuyoruz.
+                    withEnv(["PATH+Docker=${dockerInstallationPath}"]) {
+                        echo "Jenkinsfile icinde guncellenmis PATH: ${env.PATH}" // Hata ayıklama için PATH'i yazdır
+                        
+                        // Dockerfile dosyanızın projenin kök dizininde olduğunu varsayıyoruz
+                        // BUILD_NUMBER Jenkins tarafından sağlanan bir ortam değişkenidir ve imajı etiketlemek için kullanılır
+                        def customImage = docker.build("${env.DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}", ".")
+                        env.IMAGE_TAG = env.BUILD_NUMBER // Tag'i daha sonra kullanmak üzere sakla
+                    }
                 }
             }
         }
