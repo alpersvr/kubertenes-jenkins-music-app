@@ -53,23 +53,30 @@ pipeline {
         stage('Login to Docker Hub: Docker Huba Giriş Yap') { // Aşama 4: Dockerhub'a giriş yap
             steps {
                 script {
-                    // Docker Hub registry ve Jenkins'te tanımlı credentials'ı kullanarak giriş yap
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
-                        echo "Docker Hub'a başarıyla giriş yapıldı."
+                    def dockerInstallationPath = tool('MyDocker')
+                    withEnv(["PATH+DockerLogin=${dockerInstallationPath}"]) { // PATH'e ekleme
+                        echo "Jenkinsfile icinde guncellenmis PATH (Login Stage): ${env.PATH}" // Debug için
+                        docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
+                            // Bu satıra kadar gelirse login başarılıdır, içindeki echo'ya gerek kalmayabilir
+                            // echo "Docker Hub'a başarıyla giriş yapıldı."
+                        }
                     }
                 }
             }
         }
 
-        stage('Push Docker Image: İmajı Docker Huba Yükle') { // Aşama 5: İmajı huba push et [cite: 11]
+       stage('Push Docker Image: İmajı Docker Huba Yükle') { // Aşama 5: İmajı huba push et
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
-                        // Oluşturulan ve etiketlenen imajı push et
-                        docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push()
-                        // Opsiyonel: Aynı imajı 'latest' olarak da etiketleyip push edebilirsiniz
-                        // docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push('latest')
-                        echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a yüklendi."
+                    def dockerInstallationPath = tool('MyDocker')
+                    withEnv(["PATH+DockerPush=${dockerInstallationPath}"]) { // PATH'e ekleme
+                        echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}" // Debug için
+                        docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
+                            docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push()
+                            // Opsiyonel: Aynı imajı 'latest' olarak da etiketleyip push edebilirsiniz
+                            // docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push('latest')
+                            echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a yüklendi."
+                        }
                     }
                 }
             }
