@@ -51,18 +51,18 @@ pipeline {
         }
 
     
-        // STAGE 4 - Login to Docker Hub (GÜNCELLENDİ)
-       stage('Login to Docker Hub: Docker Huba Giriş Yap') {
+  // STAGE 4 - Login to Docker Hub (GÜNCELLENDİ)
+stage('Login to Docker Hub: Docker Huba Giriş Yap') {
     steps {
         script {
             def dockerExecutable = "${tool('MyDocker')}/docker"
 
             echo "Docker Executable Path: ${dockerExecutable}"
 
-            // GÜNCELLENMİŞ KISIM
             withCredentials([usernamePassword(credentialsId: "${env.DOCKERHUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                 sh """
-                    echo "$DOCKER_PASSWORD" | '${dockerExecutable}' login -u "$DOCKER_USERNAME" --password-stdin https://registry.hub.docker.com
+                    export PATH=\$PATH:/usr/local/bin
+                    echo "\$DOCKER_PASSWORD" | '${dockerExecutable}' login -u "\$DOCKER_USERNAME" --password-stdin https://registry.hub.docker.com
                 """
                 echo "Docker Hub'a giriş başarılı."
             }
