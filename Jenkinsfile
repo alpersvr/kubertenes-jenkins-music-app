@@ -50,27 +50,40 @@ pipeline {
             }
         }
 
-        stage('Login to Docker Hub: Docker Huba Giriş Yap') { // Aşama 4: Dockerhub'a giriş yap
+    
+        // STAGE 4 - Login to Docker Hub (GÜNCELLENDİ)
+        stage('Login to Docker Hub: Docker Huba Giriş Yap') {
             steps {
                 script {
-                    def dockerInstallationPath = tool('MyDocker')
-                    withEnv(["PATH+DockerLogin=${dockerInstallationPath}"]) { // PATH'e ekleme
-                        echo "Jenkinsfile icinde guncellenmis PATH (Login Stage): ${env.PATH}" // Debug için
-                        docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
-                            // Bu satıra kadar gelirse login başarılıdır, içindeki echo'ya gerek kalmayabilir
-                            // echo "Docker Hub'a başarıyla giriş yapıldı."
-                        }
-                    }
+                    // 'MyDocker' Jenkins -> Tools altında tanımladığınız Docker aracının adı olmalı.
+                    // Bu, /usr/local/bin gibi bir yol vermelidir.
+                    def dockerExecutable = "${tool('MyDocker')}/docker" 
+                    
+                    echo "Docker Executable Path: ${dockerExecutable}"
+                    echo "Attempting login for user: ${env.DOCKERHUB_CREDENTIALS_ID_USR}"
+
+                    // Jenkins'teki "Username with password" tipindeki credentials ID'niz
+                    // DOCKERHUB_CREDENTIALS_ID olmalı. Jenkins bu ID için _USR ve _PSW son ekleriyle
+                    // ortam değişkenleri oluşturur.
+                    sh "'${dockerExecutable}' login -u '${env.DOCKERHUB_CREDENTIALS_ID_USR}' -p '${env.DOCKERHUB_CREDENTIALS_ID_PSW}' https://registry.hub.docker.com"
+                    echo "Docker Hub'a 'sh' komutu ile giriş denemesi tamamlandı."
                 }
             }
         }
 
-       stage('Push Docker Image: İmajı Docker Huba Yükle') { // Aşama 5: İmajı huba push et
+        // STAGE 5 - Push Docker Image (GÜNCELLENDİ)
+        stage('Push Docker Image: İmajı Docker Huba Yükle') {
             steps {
                 script {
+                    // Bu aşamada da PATH'i garantiye alalım, ancak asıl login bir önceki aşamada yapıldı.
                     def dockerInstallationPath = tool('MyDocker')
-                    withEnv(["PATH+DockerPush=${dockerInstallationPath}"]) { // PATH'e ekleme
-                        echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}" // Debug için
+                    withEnv(["PATH+DockerPush=${dockerInstallationPath}"]) {
+                        echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}"
+                        
+                        // withDockerRegistry burada sadece Docker Hub'a push için kimlik bilgisi
+                        // ortamını ayarlamak için kullanılıyor. Asıl login bir önceki aşamada yapıldı.
+                        // Bu blok içindeki docker.image().push() komutunun, bir önceki aşamada
+                        // sh ile yapılan login sayesinde yetkilendirilmiş olmasını bekliyoruz.
                         docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
                             docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push()
                             // Opsiyonel: Aynı imajı 'latest' olarak da etiketleyip push edebilirsiniz
