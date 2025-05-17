@@ -6,7 +6,7 @@ pipeline {
     }
     environment {
         // Jenkins'te tanımladığınız Docker Hub credentials'ın ID'si
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials' // BU ALANI DEĞİŞTİRİN
+        DOCKERHUB_CREDENTIALS_ID = 'dockerID' // BU ALANI DEĞİŞTİRİN
         // Docker Hub kullanıcı adınız ve imaj adınız
         DOCKER_IMAGE_NAME      = 'alpersever/kubertenes-jenkins-music-app' // BU ALANI DEĞİŞTİRİN
         KUBERNETES_YAML_PATH   = 'kubernetes' // Kubernetes YAML dosyalarınızın bulunduğu klasör
