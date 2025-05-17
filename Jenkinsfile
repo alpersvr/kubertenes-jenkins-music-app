@@ -75,22 +75,24 @@ stage('Login to Docker Hub: Docker Huba Giriş Yap') {
         stage('Push Docker Image: İmajı Docker Huba Yükle') {
             steps {
                 script {
-                    // Bu aşamada da PATH'i garantiye alalım, ancak asıl login bir önceki aşamada yapıldı.
-                    def dockerInstallationPath = tool('MyDocker')
-                    withEnv(["PATH+DockerPush=${dockerInstallationPath}"]) {
-                        echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}"
-                        
-                        // withDockerRegistry burada sadece Docker Hub'a push için kimlik bilgisi
-                        // ortamını ayarlamak için kullanılıyor. Asıl login bir önceki aşamada yapıldı.
-                        // Bu blok içindeki docker.image().push() komutunun, bir önceki aşamada
-                        // sh ile yapılan login sayesinde yetkilendirilmiş olmasını bekliyoruz.
-                        docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
-                            docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push()
-                            // Opsiyonel: Aynı imajı 'latest' olarak da etiketleyip push edebilirsiniz
-                            // docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push('latest')
-                            echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a yüklendi."
-                        }
-                    }
+                    def dockerExecutable = "${tool('MyDocker')}/docker" // Docker çalıştırılabilir dosyasının tam yolu
+                    
+                    echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}" // Bu satır bir öncekiyle aynı PATH'i gösterecektir.
+                                                                                      // withEnv'i bu aşamadan kaldırdık çünkü sh ile tam yol kullanacağız.
+
+                    // Bir önceki aşamada login olduğumuz için ~/.docker/config.json dosyasında
+                    // kimlik bilgileri saklanmış olmalı. Bu yüzden withDockerRegistry'ye
+                    // doğrudan ihtiyaç olmayabilir, ancak yine de Docker Pipeline plugin'inin
+                    // bazı bağlamları ayarlamasına yardımcı olabilir.
+                    // Şimdilik withDockerRegistry olmadan deneyelim, eğer çalışmazsa ekleriz.
+
+                    sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}'"
+                    
+                    // Opsiyonel: 'latest' tag'ini de push etmek isterseniz:
+                    // sh "'${dockerExecutable}' tag '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}' '${env.DOCKER_IMAGE_NAME}:latest'"
+                    // sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:latest'"
+                    
+                    echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a 'sh' komutu ile push denemesi yapıldı."
                 }
             }
         }
