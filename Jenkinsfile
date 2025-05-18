@@ -106,6 +106,16 @@ pipeline {
                 }
             }
         }
+stage('Update Deployment YAML: Tag Güncelle') {
+    steps {
+        script {
+            sh """
+                sed -i '' 's|image: .*|image: ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}|' ${env.KUBERNETES_YAML_PATH}/deployment.yaml
+            """
+            echo "deployment.yaml dosyasındaki image tag güncellendi: ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}"
+        }
+    }
+}
 
      stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') {
             steps {
