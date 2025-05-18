@@ -71,29 +71,24 @@ stage('Login to Docker Hub: Docker Huba Giriş Yap') {
 }
 
 
-   // STAGE 5 - Push Docker Image (GÜNCELLENDİ - withDockerRegistry ve withEnv ile)
-        stage('Push Docker Image: İmajı Docker Huba Yükle') {
+    // STAGE 5 - Push Docker Image (GÜNCELLENDİ - sh ile doğrudan push)
+        stage('Push Docker Image: İmajı Docker Huba Yükle') { [cite: 11]
             steps {
                 script {
-                    def dockerInstallationPath = tool('MyDocker') // /usr/local/bin gibi
-                    // Bu withEnv bloğu, withDockerRegistry'nin içindeki docker komutlarının
-                    // Docker CLI'yi bulabilmesi için PATH'i ayarlar.
-                    withEnv(["PATH+DockerPush=${dockerInstallationPath}"]) {
-                        echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}"
-                        
-                        // withDockerRegistry, DOCKERHUB_CREDENTIALS_ID ile belirtilen
-                        // kimlik bilgisini kullanarak Docker Hub'a bağlanır.
-                        // Artık PATH doğru olduğu için, bu blok içindeki docker.image().push()
-                        // komutunun çalışmasını bekliyoruz.
-                        docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
-                            docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push()
-                            
-                            // Opsiyonel: 'latest' tag'ini de push etmek isterseniz:
-                            // docker.image("${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}").push('latest')
-                            
-                            echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a yüklendi."
-                        }
-                    }
+                    def dockerExecutable = "${tool('MyDocker')}/docker" // Docker çalıştırılabilir dosyasının tam yolu
+                    
+                    // Bir önceki "Login to Docker Hub" aşamasında yapılan 'sh docker login' komutunun
+                    // kimlik bilgilerini ~/.docker/config.json'a yazmış olması beklenir.
+                    // Bu aşamada PATH'i ayrıca withEnv ile sarmalamaya gerek yok,
+                    // çünkü dockerExecutable tam yolu içeriyor.
+
+                    sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}'"
+                    
+                    // Opsiyonel: 'latest' tag'ini de push etmek isterseniz:
+                    // sh "'${dockerExecutable}' tag '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}' '${env.DOCKER_IMAGE_NAME}:latest'"
+                    // sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:latest'"
+                    
+                    echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a 'sh' komutu ile push denemesi yapıldı."
                 }
             }
         }
