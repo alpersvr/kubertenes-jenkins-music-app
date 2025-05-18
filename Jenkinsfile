@@ -51,24 +51,37 @@ pipeline {
         }
 
     
-  // STAGE 4 - Login to Docker Hub (GÜNCELLENDİ)
-stage('Login to Docker Hub: Docker Huba Giriş Yap') {
-    steps {
-        script {
-            def dockerExecutable = "${tool('MyDocker')}/docker"
+// STAGE 4 - Login to Docker Hub (GÜNCELLENDİ - Pull testi eklendi)
+        stage('Login to Docker Hub: Docker Huba Giriş Yap') {
+            steps {
+                script {
+                    def dockerExecutable = "${tool('MyDocker')}/docker" 
+                    echo "Docker Executable Path: ${dockerExecutable}"
 
-            echo "Docker Executable Path: ${dockerExecutable}"
-
-            withCredentials([usernamePassword(credentialsId: "${env.DOCKERHUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh """
-                    export PATH=\$PATH:/usr/local/bin
-                    echo "\$DOCKER_PASSWORD" | '${dockerExecutable}' login -u "\$DOCKER_USERNAME" --password-stdin https://registry.hub.docker.com
-                """
-                echo "Docker Hub'a giriş başarılı."
+                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        echo "Attempting login for user: ${DOCKER_USERNAME}"
+                        sh """
+                            echo "\$DOCKER_PASSWORD" | '${dockerExecutable}' login -u "\$DOCKER_USERNAME" --password-stdin https://registry.hub.docker.com
+                        """
+                        // Login başarılı olduktan sonra, aynı oturumla bir pull denemesi yapalım.
+                        // Eğer DOCKER_IMAGE_NAME daha önce hiç push edilmediyse bu satır hata verebilir.
+                        // Bu durumda, Docker Hub'da var olan KENDİ PUBLIC imajlarınızdan birini kullanın
+                        // veya bu pull testini atlayın.
+                        // Şimdilik, bir önceki build'den kalan imajı çekmeyi deniyoruz (eğer varsa).
+                        echo "Login sonrası ${env.DOCKER_IMAGE_NAME}:latest imajını çekme denemesi..."
+                        // Pull komutunu try-catch içine alabiliriz, böylece imaj yoksa pipeline durmaz.
+                        try {
+                            sh "'${dockerExecutable}' pull '${env.DOCKER_IMAGE_NAME}:latest'"
+                            echo "Test pull işlemi BAŞARILI. Login geçerli görünüyor."
+                        } catch (Exception e) {
+                            echo "UYARI: Test pull işlemi sırasında bir sorun oluştu veya imaj bulunamadı: ${e.getMessage()}"
+                            echo "Login işlemi tamamlandı, ancak pull testi yapılamadı/başarısız oldu. Push aşamasına devam edilecek."
+                        }
+                    }
+                    echo "Docker Hub'a giriş ve test pull denemesi tamamlandı." 
+                }
             }
         }
-    }
-}
 
 
      // STAGE 5 - Push Docker Image (GÜNCELLENDİ - latest tag eklendi)
