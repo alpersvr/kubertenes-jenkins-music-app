@@ -71,38 +71,29 @@ stage('Login to Docker Hub: Docker Huba Giriş Yap') {
 }
 
 
-    // STAGE 5 - Push Docker Image (GÜNCELLENDİ - withDockerRegistry içinde sh ile push)
+     // STAGE 5 - Push Docker Image (GÜNCELLENDİ - latest tag eklendi)
         stage('Push Docker Image: İmajı Docker Huba Yükle') {
             steps {
                 script {
-                    def dockerInstallationPath = tool('MyDocker') // /usr/local/bin gibi
-                    def dockerExecutable = "${dockerInstallationPath}/docker"
+                    def dockerExecutable = "${tool('MyDocker')}/docker" // Docker çalıştırılabilir dosyasının tam yolu
+                    
+                    // 1. Mevcut BUILD_NUMBER etiketli imajı push et
+                    sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}'"
+                    echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a push edildi."
 
-                    // Bu withEnv bloğu, withDockerRegistry'nin içindeki sh docker push komutunun
-                    // Docker CLI'yi bulabilmesi için PATH'i ayarlar.
-                    withEnv(["PATH+DockerPush=${dockerInstallationPath}"]) {
-                        echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}"
-                        
-                        // withDockerRegistry, DOCKERHUB_CREDENTIALS_ID ile belirtilen
-                        // kimlik bilgisini kullanarak Docker Hub ile iletişim kurar
-                        // ve bu blok içindeki komutlar için bir kimlik doğrulama bağlamı sağlar.
-                        docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS_ID) {
-                            // Artık bu blok içindeyiz ve PATH de ayarlı.
-                            // Doğrudan sh ile push yapmayı deneyelim.
-                            // Docker Pipeline plugin'inin kendi push mekanizması yerine
-                            // login aşamasında çalışan sh yapısını kullanalım.
-                            sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}'"
-                            
-                            // Opsiyonel: 'latest' tag'ini de push etmek isterseniz:
-                            // sh "'${dockerExecutable}' tag '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}' '${env.DOCKER_IMAGE_NAME}:latest'"
-                            // sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:latest'"
-                            
-                            echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG} Docker Hub'a (withDockerRegistry içinde sh ile) push denemesi yapıldı."
-                        }
-                    }
+                    // 2. Aynı imajı 'latest' olarak etiketle
+                    sh "'${dockerExecutable}' tag '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}' '${env.DOCKER_IMAGE_NAME}:latest'"
+                    echo "İmaj ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}, ayrıca ${env.DOCKER_IMAGE_NAME}:latest olarak etiketlendi."
+
+                    // 3. 'latest' etiketli imajı push et
+                    sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:latest'"
+                    echo "İmaj ${env.DOCKER_IMAGE_NAME}:latest Docker Hub'a push edildi."
+                    
+                    echo "Tüm imaj push işlemleri tamamlandı."
                 }
             }
         }
+
         stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') { // Aşama 6: K8s deployment dosyasını çalıştır [cite: 12]
             steps {
                 script {
