@@ -71,20 +71,16 @@ stage('Login to Docker Hub: Docker Huba Giriş Yap') {
 }
 
 
-        // STAGE 5 - Push Docker Image (GÜNCELLENDİ)
+    // STAGE 5 - Push Docker Image (BU AŞAMAYI KONTROL EDİN)
         stage('Push Docker Image: İmajı Docker Huba Yükle') {
             steps {
                 script {
                     def dockerExecutable = "${tool('MyDocker')}/docker" // Docker çalıştırılabilir dosyasının tam yolu
                     
-                    echo "Jenkinsfile icinde guncellenmis PATH (Push Stage): ${env.PATH}" // Bu satır bir öncekiyle aynı PATH'i gösterecektir.
-                                                                                      // withEnv'i bu aşamadan kaldırdık çünkü sh ile tam yol kullanacağız.
-
-                    // Bir önceki aşamada login olduğumuz için ~/.docker/config.json dosyasında
-                    // kimlik bilgileri saklanmış olmalı. Bu yüzden withDockerRegistry'ye
-                    // doğrudan ihtiyaç olmayabilir, ancak yine de Docker Pipeline plugin'inin
-                    // bazı bağlamları ayarlamasına yardımcı olabilir.
-                    // Şimdilik withDockerRegistry olmadan deneyelim, eğer çalışmazsa ekleriz.
+                    // Bu aşamada PATH'i ayrıca yazdırmaya veya withEnv ile sarmalamaya gerek yok,
+                    // çünkü dockerExecutable tam yolu içeriyor.
+                    // Bir önceki aşamada yapılan 'sh docker login' komutunun
+                    // kimlik bilgilerini ~/.docker/config.json'a yazmış olması beklenir.
 
                     sh "'${dockerExecutable}' push '${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}'"
                     
@@ -96,7 +92,6 @@ stage('Login to Docker Hub: Docker Huba Giriş Yap') {
                 }
             }
         }
-
         stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') { // Aşama 6: K8s deployment dosyasını çalıştır [cite: 12]
             steps {
                 script {
