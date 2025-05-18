@@ -72,7 +72,7 @@ stage('Login to Docker Hub: Docker Huba Giriş Yap') {
 
 
     // STAGE 5 - Push Docker Image (GÜNCELLENDİ - sh ile doğrudan push)
-        stage('Push Docker Image: İmajı Docker Huba Yükle') { [cite: 11]
+        stage('Push Docker Image: İmajı Docker Huba Yükle') { //[cite: 11]
             steps {
                 script {
                     def dockerExecutable = "${tool('MyDocker')}/docker" // Docker çalıştırılabilir dosyasının tam yolu
