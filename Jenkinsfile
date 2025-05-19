@@ -81,7 +81,7 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image: İmajı Docker Huba Yükle') {
+        stage('Push Docker Image') {
             steps {
                 script {
                     def dockerExecutable = "${tool('MyDocker')}/docker" // Docker çalıştırılabilir dosyasının tam yolu
@@ -108,7 +108,7 @@ pipeline {
                 script {
                     echo "Mevcut çalışma dizini: ${pwd()}"
                     echo "kubernetes klasörünün içeriği:"
-                    sh "ls -la kubernetes" // kubernetes klasörünün içeriğini listele
+                    sh "ls -la kubernetes" // kubernetes klasörünün içeriğini liste
 
                     echo "deployment.yaml dosyasının varlığı ve içeriği:"
                     sh "cat kubernetes/deployment.yaml" // deployment.yaml dosyasının içeriğini göster (hata ayıklama için)
