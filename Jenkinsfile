@@ -13,12 +13,12 @@ pipeline {
     }
 
     stages {
-        stage('Checkout: Kodu Çek') { // Aşama 1: Projeyi lokal bilgisayara klonla [cite: 8]
+       /* stage('Checkout: Kodu Çek') { // Aşama 1: Projeyi lokal bilgisayara klonla [cite: 8]
             steps {
                 // Github repository URL'nizi ve branch'inizi buraya yazın
                 git branch: 'main', url: 'https://github.com/alpersvr/kubertenes-jenkins-music-app.git' // BU ALANI DEĞİŞTİRİN
             }
-        }
+        }*/
 
         stage('Build: Projeyi Derle') { // Aşama 2: Projeyi derle ve JAR oluştur [cite: 9]
             steps {
