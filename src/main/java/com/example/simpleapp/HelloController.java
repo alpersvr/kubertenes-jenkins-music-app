@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloController {
 
-   // @GetMapping("/hello")
+    @GetMapping("/")
     public String sayHello() {
         return "Merhaba! Spring Boot uygulamam Kubernetes uzerinde calisiyor!";
     }
