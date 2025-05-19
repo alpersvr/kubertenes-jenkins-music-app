@@ -107,37 +107,38 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') { // Aşama 6: K8s deployment dosyasını çalıştır [cite: 12]
+     stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') {
             steps {
                 script {
-                    // Jenkins sunucusunun Minikube ile aynı makinede olduğunu ve kubectl'in ayarlı olduğunu varsayıyoruz
-                    // deployment.yaml dosyasındaki imaj adının Docker Hub'a yüklediğiniz imajla eşleştiğinden emin olun
-                    // (Örn: image: SİZİN_DOCKERHUB_KULLANICI_ADINIZ/SİZİN_İMAJ_ADINIZ:TAG)
-                    // İmaj etiketini dinamik olarak değiştirmek daha gelişmiş bir yöntemdir,
-                    // şimdilik deployment.yaml'de BUILD_NUMBER ile etiketlenmiş imajı kullanacağınızı varsayalım
-                    // VEYA deployment.yaml'de 'latest' etiketini kullanabilirsiniz (push aşamasında latest tag'ini de push ettiyseniz)
+                    echo "Mevcut çalışma dizini: ${pwd()}"
+                    echo "kubernetes klasörünün içeriği:"
+                    sh "ls -la kubernetes" // kubernetes klasörünün içeriğini listele
 
-                    // ÖNEMLİ: deployment.yaml dosyanızda image alanını güncelleyin!
-                    // Örneğin: image: alialpersever/simple-app:${env.IMAGE_TAG} veya image: alialpersever/simple-app:latest
+                    echo "deployment.yaml dosyasının varlığı ve içeriği:"
+                    sh "cat kubernetes/deployment.yaml" // deployment.yaml dosyasının içeriğini göster (hata ayıklama için)
 
                     sh "kubectl apply -f ${env.KUBERNETES_YAML_PATH}/deployment.yaml"
-                    // Deployment'ın durumunu kontrol et (deployment adını kendi YAML dosyanızdaki adla değiştirin)
                     sh "kubectl rollout status deployment/music-app-deployment --timeout=2m"
                 }
             }
         }
 
-        stage('Expose Service on Kubernetes: Servisi K8s de Aktif Et') { // Aşama 7: K8s service dosyasını çalıştır [cite: 12]
+        stage('Expose Service on Kubernetes: Servisi K8s de Aktif Et') {
             steps {
                 script {
+                    echo "kubernetes klasörünün içeriği (servis öncesi):"
+                    sh "ls -la kubernetes"
+
+                    echo "service.yaml dosyasının varlığı ve içeriği:"
+                    sh "cat kubernetes/service.yaml" // service.yaml dosyasının içeriğini göster
+
                     sh "kubectl apply -f ${env.KUBERNETES_YAML_PATH}/service.yaml"
-                    // Opsiyonel: Servis bilgilerini göster (servis adını kendi YAML dosyanızdaki adla değiştirin)
                     sh "kubectl get svc/music-app-service"
                     echo "Uygulamaya erişmek için 'minikube service music-app-service --url' komutunu kullanabilirsiniz."
                 }
             }
-        }
-    }
+        } 
+        
 
     post { // Pipeline tamamlandıktan sonra çalışacak adımlar
         always {
