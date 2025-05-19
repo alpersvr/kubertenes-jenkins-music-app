@@ -31,7 +31,7 @@ pipeline {
             }
         }
 
-      stage('Build Docker Image: Docker İmajı Oluştur') { // Aşama 3: Docker imajı oluştur [cite: 10]
+        stage('Build Docker Image: Docker İmajı Oluştur') { // Aşama 3: Docker imajı oluştur [cite: 10]
             steps {
                 script {
                     // 'MyDocker', Manage Jenkins -> Tools altında Docker için verdiğiniz isim olmalı.
@@ -50,8 +50,6 @@ pipeline {
             }
         }
 
-    
-// STAGE 4 - Login to Docker Hub (GÜNCELLENDİ - Pull testi eklendi)
         stage('Login to Docker Hub: Docker Huba Giriş Yap') {
             steps {
                 script {
@@ -83,8 +81,6 @@ pipeline {
             }
         }
 
-
-     // STAGE 5 - Push Docker Image (GÜNCELLENDİ - latest tag eklendi)
         stage('Push Docker Image: İmajı Docker Huba Yükle') {
             steps {
                 script {
@@ -106,18 +102,8 @@ pipeline {
                 }
             }
         }
-stage('Update Deployment YAML: Tag Güncelle') {
-    steps {
-        script {
-            sh """
-                sed -i '' 's|image: .*|image: ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}|' ${env.KUBERNETES_YAML_PATH}/deployment.yaml
-            """
-            echo "deployment.yaml dosyasındaki image tag güncellendi: ${env.DOCKER_IMAGE_NAME}:${env.IMAGE_TAG}"
-        }
-    }
-}
 
-     stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') {
+        stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') {
             steps {
                 script {
                     echo "Mevcut çalışma dizini: ${pwd()}"
@@ -147,8 +133,8 @@ stage('Update Deployment YAML: Tag Güncelle') {
                     echo "Uygulamaya erişmek için 'minikube service music-app-service --url' komutunu kullanabilirsiniz."
                 }
             }
-        } 
-        
+        }
+    }
 
     post { // Pipeline tamamlandıktan sonra çalışacak adımlar
         always {
