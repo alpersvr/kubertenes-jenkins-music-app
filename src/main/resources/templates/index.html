@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot Kubernetes Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+        }
+        .card {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4">
+        <div class="card rounded-lg shadow-xl p-8 max-w-2xl mx-auto">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Spring Boot Kubernetes Demo</h1>
+            <p class="text-xl text-gray-600 mb-6" th:text="${message}">Loading...</p>
+            <div class="flex space-x-4">
+                <div class="bg-blue-100 p-4 rounded-lg">
+                    <h2 class="text-lg font-semibold text-blue-800">Kubernetes</h2>
+                    <p class="text-blue-600">Container orchestration platform</p>
+                </div>
+                <div class="bg-green-100 p-4 rounded-lg">
+                    <h2 class="text-lg font-semibold text-green-800">Spring Boot</h2>
+                    <p class="text-green-600">Java framework</p>
+                </div>
+                <div class="bg-purple-100 p-4 rounded-lg">
+                    <h2 class="text-lg font-semibold text-purple-800">Docker</h2>
+                    <p class="text-purple-600">Container platform</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
