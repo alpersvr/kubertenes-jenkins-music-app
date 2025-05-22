@@ -25,8 +25,7 @@ pipeline {
                 script {
                     // Maven projesi için (pom.xml varsa)
                     sh './mvnw clean package -DskipTests'
-                    // Gradle projesi için (build.gradle varsa)
-                    // sh './gradlew build -x test'
+                   
                 }
             }
         }
