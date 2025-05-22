@@ -114,7 +114,7 @@ pipeline {
                 sh 'minikube start --driver=docker' // Örnek olarak docker driver ile, kendi driver'ınızı belirtin
                                                 // macOS'te --driver=hyperkit, --driver=virtualbox, veya --driver=docker olabilir
             }
-        
+        }
         stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') {
             steps {
                 script {
