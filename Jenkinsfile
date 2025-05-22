@@ -10,6 +10,7 @@ pipeline {
         // Docker Hub kullanıcı adınız ve imaj adınız
         DOCKER_IMAGE_NAME      = 'alpersever/kubertenes-jenkins-music-app' // BU ALANI DEĞİŞTİRİN
         KUBERNETES_YAML_PATH   = 'kubernetes' // Kubernetes YAML dosyalarınızın bulunduğu klasör
+        PATH = "/opt/homebrew/bin:${env.PATH}"
     }
 
     stages {
@@ -101,11 +102,23 @@ pipeline {
                 }
             }
         }
+        
+        stage('Minikube Başlat') {
+            steps {
+                // Jenkins agent'ının PATH'ini görmek için (sorun giderme amaçlı)
+                sh 'echo "Jenkins PATH: $PATH"'
+                sh 'whoami' // Jenkins agent'ının hangi kullanıcı olarak çalıştığını görün
+                sh 'ls -l /opt/homebrew/bin/minikube' // minikube dosyasının varlığını ve izinlerini kontrol edin
 
+                // Şimdi minikube komutunu çalıştırın
+                sh 'minikube start --driver=docker' // Örnek olarak docker driver ile, kendi driver'ınızı belirtin
+                                                // macOS'te --driver=hyperkit, --driver=virtualbox, veya --driver=docker olabilir
+            }
+        
         stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') {
             steps {
                 script {
-                    sh "minikube start"
+                    
                     echo "Mevcut çalışma dizini: ${pwd()}"
                     echo "kubernetes klasörünün içeriği:"
                     sh "ls -la kubernetes" // kubernetes klasörünün içeriğini liste
