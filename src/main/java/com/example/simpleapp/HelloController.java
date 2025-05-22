@@ -8,6 +8,6 @@ public class HelloController {
 
     @GetMapping("/")
     public String sayHello() {
-        return "<strong>Hello from Kubernetes!</strong>";
+        return "<strong>Hello from Kubernetes cluster!</strong>";
     }
 }

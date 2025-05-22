@@ -26,7 +26,7 @@ pipeline {
                     // Maven projesi için (pom.xml varsa)
                     sh './mvnw clean package -DskipTests'
                    
-                }
+                } 
             }
         }
 
@@ -105,6 +105,7 @@ pipeline {
         stage('Deploy to Kubernetes: Uygulamayı K8s e Dağıt') {
             steps {
                 script {
+                    sh "minikube start"
                     echo "Mevcut çalışma dizini: ${pwd()}"
                     echo "kubernetes klasörünün içeriği:"
                     sh "ls -la kubernetes" // kubernetes klasörünün içeriğini liste
@@ -129,7 +130,6 @@ pipeline {
 
                     sh "kubectl apply -f ${env.KUBERNETES_YAML_PATH}/service.yaml"
                     sh "kubectl get svc/music-app-service"
-                    echo "Uygulamaya erişmek için 'minikube service music-app-service --url' komutunu kullanabilirsiniz."
                 }
             }
         }
